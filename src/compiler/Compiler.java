@@ -53,6 +53,7 @@ public class Compiler implements CompilerConstants {
       case INTTYPE:
       case STRINGTYPE:
       case PRINT:
+      case READ:
       case NEWLINE:
       case VAR:
         ;
@@ -71,11 +72,6 @@ public class Compiler implements CompilerConstants {
   Token vtype;
   String etype;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case NEWLINE:
-      jj_consume_token(NEWLINE);
-      jj_consume_token(SEMI);
-    System.out.print("[] p");
-      break;
     case VAR:
       t = jj_consume_token(VAR);
       jj_consume_token(EQUALS);
@@ -137,6 +133,24 @@ public class Compiler implements CompilerConstants {
       exp();
       jj_consume_token(SEMI);
       System.out.print("n ");
+      break;
+    case READ:
+      jj_consume_token(READ);
+      t = jj_consume_token(VAR);
+      jj_consume_token(SEMI);
+          if(types.get(t.image) == "int")
+          {
+          System.out.print("?"+ t.image);
+          }
+          else
+                {
+            {if (true) throw new TypeException("Not of type \u005c"int\u005c"");}
+                }
+      break;
+    case NEWLINE:
+      jj_consume_token(NEWLINE);
+      jj_consume_token(SEMI);
+    System.out.print("[] p");
       break;
     default:
       jj_la1[2] = jj_gen;
@@ -297,7 +311,7 @@ public class Compiler implements CompilerConstants {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x141c00,0xc00,0x141c00,0xc0,0xc0,0x300,0x300,0x528080,0x528000,};
+      jj_la1_0 = new int[] {0x547000,0x3000,0x547000,0xc0,0xc0,0x300,0x300,0x1490080,0x1490000,};
    }
 
   /** Constructor with InputStream. */
@@ -414,7 +428,7 @@ public class Compiler implements CompilerConstants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[23];
+    boolean[] la1tokens = new boolean[25];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -428,7 +442,7 @@ public class Compiler implements CompilerConstants {
         }
       }
     }
-    for (int i = 0; i < 23; i++) {
+    for (int i = 0; i < 25; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

@@ -90,6 +90,8 @@ TOKEN : /* Operators */
 | < MINUS : "-" >
 | < MULTIPLY : "*" >
 | < DIVIDE : "/" >
+| < LT : "<" >
+| < GT : ">" >
 }
 
 TOKEN : /* Keywords and punctuation */
@@ -97,10 +99,10 @@ TOKEN : /* Keywords and punctuation */
   < INTTYPE : "int" >
 | < STRINGTYPE : "string" >
 | < PRINT : "print" >
-| < READ : "\"Please enter an integer: \"" >
 | < SEMI: ";" >
 | < LPAREN: "(" >
 | < RPAREN: ")" >
+| < READ : "read" >
 }
 
 TOKEN : /* Constants, variables, strings */
@@ -111,6 +113,7 @@ TOKEN : /* Constants, variables, strings */
 | < VAR : (< LETTER >)+ >
 | < #LETTER : [ "a"-"z" ] | [ "A"-"Z" ] >
 | < STRING: "\"" (~["\"", "[", "]"])* "\"" >
+
 }
 
 /***************************** Productions that define grammar *******************/
@@ -128,11 +131,7 @@ void statement() :
   String etype;
 }
 {
-    < NEWLINE > < SEMI >
-    {
-    System.out.print("[] p");
-    }
-|
+
     t = < VAR > < EQUALS > etype = exp() < SEMI >
     {
       if (types.get(t.image) == null)
@@ -176,7 +175,27 @@ void statement() :
     {
       System.out.print("n ");
     }
- 
+|
+	< READ > t = < VAR > < SEMI >
+	{
+	  if(types.get(t.image) == "int")
+	  {	
+	  System.out.print("?"+ t.image);
+	  }
+	  else
+	  	{
+	    throw new TypeException("Not of type \"int\"");
+		}
+	}
+| 
+	    < NEWLINE > < SEMI >
+    {
+    System.out.print("[] p");
+    }
+
+
+
+
 }
 
 String exp() :
@@ -187,7 +206,7 @@ String exp() :
 {
   type1 = term()
   (
-    ( t = < PLUS > | t = < MINUS > ) type2 = term()
+    ( t = < PLUS > | t = < MINUS >) type2 = term()
     {
       System.out.print(t.image + " ");
       checkInt(type1);
