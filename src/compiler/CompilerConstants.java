@@ -21,35 +21,31 @@ public interface CompilerConstants {
   /** RegularExpression Id. */
   int DIVIDE = 9;
   /** RegularExpression Id. */
-  int LT = 10;
+  int INTTYPE = 10;
   /** RegularExpression Id. */
-  int GT = 11;
+  int STRINGTYPE = 11;
   /** RegularExpression Id. */
-  int INTTYPE = 12;
+  int PRINT = 12;
   /** RegularExpression Id. */
-  int STRINGTYPE = 13;
+  int READ = 13;
   /** RegularExpression Id. */
-  int PRINT = 14;
+  int SEMI = 14;
   /** RegularExpression Id. */
-  int SEMI = 15;
+  int LPAREN = 15;
   /** RegularExpression Id. */
-  int LPAREN = 16;
+  int RPAREN = 16;
   /** RegularExpression Id. */
-  int RPAREN = 17;
+  int CONSTANT = 17;
   /** RegularExpression Id. */
-  int READ = 18;
+  int NEWLINE = 18;
   /** RegularExpression Id. */
-  int CONSTANT = 19;
+  int DIGIT = 19;
   /** RegularExpression Id. */
-  int NEWLINE = 20;
+  int VAR = 20;
   /** RegularExpression Id. */
-  int DIGIT = 21;
+  int LETTER = 21;
   /** RegularExpression Id. */
-  int VAR = 22;
-  /** RegularExpression Id. */
-  int LETTER = 23;
-  /** RegularExpression Id. */
-  int STRING = 24;
+  int STRING = 22;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -66,15 +62,13 @@ public interface CompilerConstants {
     "\"-\"",
     "\"*\"",
     "\"/\"",
-    "\"<\"",
-    "\">\"",
     "\"int\"",
     "\"string\"",
     "\"print\"",
+    "\"\\\"Please enter an integer: \\\"\"",
     "\";\"",
     "\"(\"",
     "\")\"",
-    "\"read\"",
     "<CONSTANT>",
     "\"newline\"",
     "<DIGIT>",
