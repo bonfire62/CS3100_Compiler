@@ -5,6 +5,7 @@ options
 {
   // If you are using a different version of Java, change this.
   JDK_VERSION = "1.8";
+
   static = false;
 }
 
@@ -19,22 +20,22 @@ import java.util.HashMap;
 public class Compiler
 {
   // Maps programming language variables to DC registers
-  private HashMap < String, Character > variables =
-        new HashMap < String, Character > ();
+  private HashMap < String, Character > variables = 
+  new HashMap < String, Character > ();
 
   // Maps programming language variables to types.
-  private HashMap<String, String > types =
-        new HashMap<String, String >();
+  private HashMap < String, String > types = 
+  new HashMap < String, String > ();
 
   // If the type is not "int", throws a TypeException
-  public void checkInt (String type)
+  public void checkInt(String type)
   {
     if (!(type.equals("int")))
     {
       throw new TypeException("Expected int, received " + type);
     }
   }
-  
+
   public static void main(String args [])
   {
     Compiler compiler = new Compiler(System.in);
@@ -64,13 +65,13 @@ public class Compiler
 /**
  * Exception used to report type-checking errors.
  */
- class TypeException extends RuntimeException
- {
-   public TypeException (String message)
-   {
-     super(message);
-   }
- }
+class TypeException extends RuntimeException
+{
+  public TypeException(String message)
+  {
+    super (message);
+  }
+}
 
 PARSER_END(Compiler)
 
@@ -98,19 +99,23 @@ TOKEN : /* Keywords and punctuation */
 | < STRINGTYPE : "string" >
 | < PRINT : "print" >
 | < READ : "\"Please enter an integer: \"" >
-| < SEMI: ";" >
-| < LPAREN: "(" >
-| < RPAREN: ")" >
+| < SEMI : ";" >
+| < LPAREN : "(" >
+| < RPAREN : ")" >
+| < BOOLTYPE : "boolean" >
+| < BOOL : "true" | "false" >
 }
 
 TOKEN : /* Constants, variables, strings */
 {
   < CONSTANT : (< DIGIT >)+ >
-| < NEWLINE: "newline" >
+| < NEWLINE : "newline" >
 | < #DIGIT : [ "0"-"9" ] >
 | < VAR : (< LETTER >)+ >
-| < #LETTER : [ "a"-"z" ] | [ "A"-"Z" ] >
-| < STRING: "\"" (~["\"", "[", "]"])* "\"" >
+| < #LETTER :
+    [ "a"-"z" ]
+  | [ "A"-"Z" ] >
+| < STRING : "\"" (~[ "\"", "[", "]" ])* "\"" >
 }
 
 /***************************** Productions that define grammar *******************/
@@ -118,7 +123,10 @@ void program() :
 {
 }
 {
-  ( statement() )* < EOF >
+  (
+    statement()
+  )*
+  < EOF >
 }
 
 void statement() :
@@ -128,55 +136,67 @@ void statement() :
   String etype;
 }
 {
-    < NEWLINE > < SEMI >
+  
+  t = < VAR > < EQUALS > etype = exp() < SEMI >
+  {
+    if (types.get(t.image) == null)
     {
+      throw new TypeException("Undeclared variable: " + t.image);
+    }
+    if (!types.get(t.image).equals(etype))
+    {
+      throw new TypeException("Type mismatch");
+    }		
+    char reg = variables.get(t.image);
+    System.out.print("s" + reg + " ");
+  }
+|
+  (
+    vtype = < INTTYPE >
+  | vtype = < STRINGTYPE >
+  )
+  t = < VAR > < EQUALS > etype = exp() < SEMI >
+  {
+    if (types.get(t.image) == null)
+    {
+      if (variables.size() >= 26)
+      {
+        throw new TypeException("Too many variables; limit is 26");
+      }
+      variables.put(t.image, (char) ('A' + variables.size()));
+      types.put(t.image, vtype.image);
+      if (!vtype.image.equals(etype))
+      {
+        throw new TypeException("Type mismatch");
+      }
+      char reg2 = variables.get(t.image);
+      System.out.print("s" + reg2 + " ");
+    }
+    else
+    {
+      throw new TypeException("Variable already declared: " + t.image);
+    }
+  }
+| 
+  < PRINT > exp() < SEMI >
+  {
+    System.out.print("n ");
+  }
+|
+(vtype = < BOOLTYPE > t = < VAR > < EQUALS > etype = exp() < SEMI >)
+	{
+	if(etype.equals("boolean"))
+	{
+		variables.put(t.image, (char) ('A" + variables.size()));
+	}
+}
+| 
+	< NEWLINE > < SEMI >
+  {
     System.out.print("[] p");
-    }
-|
-    t = < VAR > < EQUALS > etype = exp() < SEMI >
-    {
-      if (types.get(t.image) == null)
-      {
-          throw new TypeException("Undeclared variable: " + t.image);
-      }
-      if (!types.get(t.image).equals(etype))
-	  {
-		  throw new TypeException("Type mismatch");
-      }		
-      char reg = variables.get(t.image);
-      System.out.print("s" + reg + " ");
-    }
-|
-    ( vtype = < INTTYPE > | vtype = < STRINGTYPE > ) t = < VAR > < EQUALS > etype = exp() < SEMI >
-    {
-      if (types.get(t.image) == null)
-      {
-        if (variables.size() >= 26)
-        {
-          throw new TypeException("Too many variables; limit is 26");
-        }
-        variables.put(t.image, (char) ('A' + variables.size()));
-		types.put(t.image, vtype.image);
+  }
 
-		if (!vtype.image.equals(etype))
-		{
-		  throw new TypeException("Type mismatch");
-		}
-		
-		char reg2 = variables.get(t.image);
-        System.out.print("s" + reg2 + " ");
-      }
-      else
-      {
-        throw new TypeException("Variable already declared: " + t.image);
-      }
-    }
-|   
-    < PRINT > exp() < SEMI >
-    {
-      System.out.print("n ");
-    }
- 
+
 }
 
 String exp() :
@@ -187,11 +207,15 @@ String exp() :
 {
   type1 = term()
   (
-    ( t = < PLUS > | t = < MINUS > ) type2 = term()
+    (
+      t = < PLUS >
+    | t = < MINUS >
+    )
+    type2 = term()
     {
       System.out.print(t.image + " ");
       checkInt(type1);
-	  checkInt(type2);
+      checkInt(type2);
     }
   )*
   {
@@ -207,7 +231,10 @@ String term() :
 {
   type1 = factor()
   (
-    ( t = < MULTIPLY > | t = < DIVIDE > )
+    (
+      t = < MULTIPLY >
+    | t = < DIVIDE >
+    )
     type2 = factor()
     {
       System.out.print(t.image + " ");
@@ -231,10 +258,10 @@ String factor() :
     System.out.print("_1 * ");
     return "int";
   }
-|
+| 
   type = element()
   {
-	return type;
+    return type;
   }
 }
 
@@ -249,28 +276,43 @@ String element() :
     System.out.print(t.image + " ");
     return "int";
   }
-|
+| 
   t = < STRING >
   {
     String dcs = t.image.replaceFirst("\"", "[");
     dcs = dcs.replaceFirst("\"", "]");
-	System.out.print(dcs + " ");
-	return "string";
+    System.out.print(dcs + " ");
+    return "string";
   }
-|  
+| 
   t = < VAR >
   {
     if (types.get(t.image) == null)
     {
-		throw new TypeException("Undefined variable " + t.image);
+      throw new TypeException("Undefined variable " + t.image);
     }
     Character reg = variables.get(t.image);
     System.out.print("l" + reg + " ");
     return types.get(t.image);
   }
 |
+t = < BOOL >
+	{
+	  String s = t.image;
+	  
+	  if(s.equals("true"))
+	  {
+	    System.out.print(t.image + " ");
+	    return ("boolean");
+	  }
+	  
+	  else return "-1";
+	  
+	}
+
+| 
   < LPAREN > type = exp() < RPAREN >
   {
-	return type;
+    return type;
   }
 }

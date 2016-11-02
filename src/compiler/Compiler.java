@@ -5,14 +5,14 @@ import java.util.HashMap;
 public class Compiler implements CompilerConstants {
   // Maps programming language variables to DC registers
   private HashMap < String, Character > variables =
-        new HashMap < String, Character > ();
+  new HashMap < String, Character > ();
 
   // Maps programming language variables to types.
-  private HashMap<String, String > types =
-        new HashMap<String, String >();
+  private HashMap < String, String > types =
+  new HashMap < String, String > ();
 
   // If the type is not "int", throws a TypeException
-  public void checkInt (String type)
+  public void checkInt(String type)
   {
     if (!(type.equals("int")))
     {
@@ -53,6 +53,7 @@ public class Compiler implements CompilerConstants {
       case INTTYPE:
       case STRINGTYPE:
       case PRINT:
+      case BOOLTYPE:
       case NEWLINE:
       case VAR:
         ;
@@ -71,26 +72,21 @@ public class Compiler implements CompilerConstants {
   Token vtype;
   String etype;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case NEWLINE:
-      jj_consume_token(NEWLINE);
-      jj_consume_token(SEMI);
-    System.out.print("[] p");
-      break;
     case VAR:
       t = jj_consume_token(VAR);
       jj_consume_token(EQUALS);
       etype = exp();
       jj_consume_token(SEMI);
-      if (types.get(t.image) == null)
-      {
-          {if (true) throw new TypeException("Undeclared variable: " + t.image);}
-      }
-      if (!types.get(t.image).equals(etype))
-          {
-                  {if (true) throw new TypeException("Type mismatch");}
-      }
-      char reg = variables.get(t.image);
-      System.out.print("s" + reg + " ");
+    if (types.get(t.image) == null)
+    {
+      {if (true) throw new TypeException("Undeclared variable: " + t.image);}
+    }
+    if (!types.get(t.image).equals(etype))
+    {
+      {if (true) throw new TypeException("Type mismatch");}
+    }
+    char reg = variables.get(t.image);
+    System.out.print("s" + reg + " ");
       break;
     case INTTYPE:
     case STRINGTYPE:
@@ -110,33 +106,47 @@ public class Compiler implements CompilerConstants {
       jj_consume_token(EQUALS);
       etype = exp();
       jj_consume_token(SEMI);
-      if (types.get(t.image) == null)
+    if (types.get(t.image) == null)
+    {
+      if (variables.size() >= 26)
       {
-        if (variables.size() >= 26)
-        {
-          {if (true) throw new TypeException("Too many variables; limit is 26");}
-        }
-        variables.put(t.image, (char) ('A' + variables.size()));
-                types.put(t.image, vtype.image);
-
-                if (!vtype.image.equals(etype))
-                {
-                  {if (true) throw new TypeException("Type mismatch");}
-                }
-
-                char reg2 = variables.get(t.image);
-        System.out.print("s" + reg2 + " ");
+        {if (true) throw new TypeException("Too many variables; limit is 26");}
       }
-      else
+      variables.put(t.image, (char) ('A' + variables.size()));
+      types.put(t.image, vtype.image);
+      if (!vtype.image.equals(etype))
       {
-        {if (true) throw new TypeException("Variable already declared: " + t.image);}
+        {if (true) throw new TypeException("Type mismatch");}
       }
+      char reg2 = variables.get(t.image);
+      System.out.print("s" + reg2 + " ");
+    }
+    else
+    {
+      {if (true) throw new TypeException("Variable already declared: " + t.image);}
+    }
       break;
     case PRINT:
       jj_consume_token(PRINT);
       exp();
       jj_consume_token(SEMI);
-      System.out.print("n ");
+    System.out.print("n ");
+      break;
+    case BOOLTYPE:
+      vtype = jj_consume_token(BOOLTYPE);
+      t = jj_consume_token(VAR);
+      jj_consume_token(EQUALS);
+      etype = exp();
+      jj_consume_token(SEMI);
+        if(etype.equals("boolean"))
+        {
+
+        }
+      break;
+    case NEWLINE:
+      jj_consume_token(NEWLINE);
+      jj_consume_token(SEMI);
+    System.out.print("[] p");
       break;
     default:
       jj_la1[2] = jj_gen;
@@ -175,7 +185,7 @@ public class Compiler implements CompilerConstants {
       type2 = term();
       System.out.print(t.image + " ");
       checkInt(type1);
-          checkInt(type2);
+      checkInt(type2);
     }
     {if (true) return type1;}
     throw new Error("Missing return statement in function");
@@ -228,11 +238,12 @@ public class Compiler implements CompilerConstants {
     {if (true) return "int";}
       break;
     case LPAREN:
+    case BOOL:
     case CONSTANT:
     case VAR:
     case STRING:
       type = element();
-        {if (true) return type;}
+    {if (true) return type;}
       break;
     default:
       jj_la1[7] = jj_gen;
@@ -255,24 +266,36 @@ public class Compiler implements CompilerConstants {
       t = jj_consume_token(STRING);
     String dcs = t.image.replaceFirst("\u005c"", "[");
     dcs = dcs.replaceFirst("\u005c"", "]");
-        System.out.print(dcs + " ");
-        {if (true) return "string";}
+    System.out.print(dcs + " ");
+    {if (true) return "string";}
       break;
     case VAR:
       t = jj_consume_token(VAR);
     if (types.get(t.image) == null)
     {
-                {if (true) throw new TypeException("Undefined variable " + t.image);}
+      {if (true) throw new TypeException("Undefined variable " + t.image);}
     }
     Character reg = variables.get(t.image);
     System.out.print("l" + reg + " ");
     {if (true) return types.get(t.image);}
       break;
+    case BOOL:
+      t = jj_consume_token(BOOL);
+          String s = t.image;
+
+          if(s.equals("true"))
+          {
+            System.out.print(t.image + " ");
+            {if (true) return ("boolean");}
+          }
+
+          else {if (true) return "-1";}
+      break;
     case LPAREN:
       jj_consume_token(LPAREN);
       type = exp();
       jj_consume_token(RPAREN);
-        {if (true) return type;}
+    {if (true) return type;}
       break;
     default:
       jj_la1[8] = jj_gen;
@@ -297,7 +320,7 @@ public class Compiler implements CompilerConstants {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x141c00,0xc00,0x141c00,0xc0,0xc0,0x300,0x300,0x528080,0x528000,};
+      jj_la1_0 = new int[] {0x521c00,0xc00,0x521c00,0xc0,0xc0,0x300,0x300,0x14c8080,0x14c8000,};
    }
 
   /** Constructor with InputStream. */
@@ -414,7 +437,7 @@ public class Compiler implements CompilerConstants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[23];
+    boolean[] la1tokens = new boolean[25];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -428,7 +451,7 @@ public class Compiler implements CompilerConstants {
         }
       }
     }
-    for (int i = 0; i < 23; i++) {
+    for (int i = 0; i < 25; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
@@ -455,10 +478,10 @@ public class Compiler implements CompilerConstants {
 /**
  * Exception used to report type-checking errors.
  */
- class TypeException extends RuntimeException
- {
-   public TypeException (String message)
-   {
-     super(message);
-   }
- }
+class TypeException extends RuntimeException
+{
+  public TypeException(String message)
+  {
+    super (message);
+  }
+}

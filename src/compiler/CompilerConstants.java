@@ -35,17 +35,21 @@ public interface CompilerConstants {
   /** RegularExpression Id. */
   int RPAREN = 16;
   /** RegularExpression Id. */
-  int CONSTANT = 17;
+  int BOOLTYPE = 17;
   /** RegularExpression Id. */
-  int NEWLINE = 18;
+  int BOOL = 18;
   /** RegularExpression Id. */
-  int DIGIT = 19;
+  int CONSTANT = 19;
   /** RegularExpression Id. */
-  int VAR = 20;
+  int NEWLINE = 20;
   /** RegularExpression Id. */
-  int LETTER = 21;
+  int DIGIT = 21;
   /** RegularExpression Id. */
-  int STRING = 22;
+  int VAR = 22;
+  /** RegularExpression Id. */
+  int LETTER = 23;
+  /** RegularExpression Id. */
+  int STRING = 24;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -69,6 +73,8 @@ public interface CompilerConstants {
     "\";\"",
     "\"(\"",
     "\")\"",
+    "\"boolean\"",
+    "<BOOL>",
     "<CONSTANT>",
     "\"newline\"",
     "<DIGIT>",
