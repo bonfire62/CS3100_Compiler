@@ -88,104 +88,60 @@ void program() :
 {
 }
 {
-  (
-    statement()
-  )*
-  < EOF >
+  ( statement() )* < EOF >
 }
 
 void statement() :
 {
-  Token t;
-  Token vtype;
-  String etype;
 }
 {
-  
-  t = < VAR > < EQUALS > etype = exp() < SEMI >
-  {
-    if (types.get(t.image) == null)
-    {
-      throw new TypeException("Undeclared variable: " + t.image);
-    }
-    if (!types.get(t.image).equals(etype))
-    {
-      throw new TypeException("Type mismatch");
-    }		
-    char reg = variables.get(t.image);
-    System.out.print("s" + reg + " ");
-  }
+  < VAR > < EQUALS > exp() < SEMI >
 |
-  (
-    vtype = < INTTYPE >
-  | vtype = < STRINGTYPE >
-  | vtype = < BOOLTYPE > 
-  )
-  t = < VAR > < EQUALS > etype = exp() < SEMI >
-  {
-    if (types.get(t.image) == null)
-    {
-      if (variables.size() >= 26)
-      {
-        throw new TypeException("Too many variables; limit is 26");
-      }
-      variables.put(t.image, (char) ('A' + variables.size()));
-      types.put(t.image, vtype.image);
-      if (!vtype.image.equals(etype))
-      {
-        throw new TypeException("Type mismatch");
-      }
-      char reg2 = variables.get(t.image);
-      System.out.print("s" + reg2 + " ");
-    }
-    else
-    {
-      throw new TypeException("Variable already declared: " + t.image);
-    }
-  }
-| 
+  ( < INTTYPE > | < STRINGTYPE > | < BOOLTYPE >) < VAR > < EQUALS > exp() < SEMI >
+|   
   < PRINT > exp() < SEMI >
-  {
-    System.out.print("n ");
-  }
-//|
-//
-//(vtype = < BOOLTYPE >)
-// t = < VAR > < EQUALS > etype = exp() < SEMI >
-//
-//	{
-//	if(etype.equals("boolean"))
-//	{
-//		variables.put(t.image, (char) ('A' + variables.size()));
-//		types.put(t.image, vtype.image);
-//		if(!vtype.image.equals(etype))
-//		{
-//		throw new TypeException("Type mismatch");
-//		}
-//		
-//		
-//	}
-//	else
-//	{
-//	throw new TypeException("Type mismatch");
-//	}
-//}
-| 
-	< NEWLINE >  < SEMI >
-  {
-    System.out.print("[] p");
-  }
-  
-//|
+}
 
-//	t = < READ > < VAR > etype = exp() <SEMI>
-//	{
-//	  //TODO add checking for the variable already being entered, then assign to a register.
-//	  System.out.print("?");
-//	  variables.put(t.image, (char) ('A' + variables.size()));
-//      char reg2 = variables.get(t.image);
-//      System.out.print("s" + reg2 + " ");
-//	  	
-//	}
-//  
+void exp() :
+{
+}
+{
+  term()
+  (
+    ( < PLUS > | < MINUS > ) term()
+  )*
+}
+
+ void term() :
+{
+}
+{
+  factor()
+  (
+    ( < MULTIPLY > | < DIVIDE > ) factor()
+  )*
+}
+
+void factor() :
+{
+}
+{
+  < MINUS > element()
+|
+  element()
+}
+
+void element() :
+{
+}
+{
+  < CONSTANT >
+|
+  < STRING >
+|  
+  < VAR >
+|
+  < LPAREN > exp() < RPAREN >
+|
+  < BOOLTYPE > 
 }
